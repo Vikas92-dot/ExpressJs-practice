@@ -1,0 +1,39 @@
+<!-- home.ejs -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User Management System</title>
+</head>
+<link rel="stylesheet" href="./style.css">
+
+
+<body>
+    <h2>User Management System</h2>
+    <table>
+        <tr>
+            <th>User Id</th>
+            <th>User Name</th>
+            <th>User Email</th>
+            <th>Age</th>
+        </tr>
+        <% data.forEach(element=> { %>
+            <tr>
+                <td>
+                    <%= element.userUniqueId %>
+                </td>
+                <td>
+                    <%= element.userName %>
+                </td>
+                <td>
+                    <%= element.userEmail %>
+                </td>
+                <td>
+                    <%= element.userAge %>
+                </td>
+            </tr>
+        <% }) %>
+    </table>
+</body>
+
+</html>
