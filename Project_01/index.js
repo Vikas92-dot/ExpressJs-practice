@@ -1,79 +1,83 @@
 const express = require('express');
-const fs = require('fs');
+const mongoose = require('mongoose');
 const app = express();
-const users = require("./MOCK_DATA.json")
 const PORT = 8000;
 
 //Middleware
 app.use(express.urlencoded({extended: false}));
 
+//Connection
+mongoose.connect("mongodb://127.0.0.1:27017/youtube-app-1")
+.then(()=> console.log('MongoDb connected'))
+.catch((err)=> console.log("Mongo error", err));
+//Schema
+const userSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true,
+    },
+    lastName: {
+        type: String,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    jobTitle: {
+        type: String,
+    },
+    gender: {
+        type: String,
+    },
+},
+{timestamps: true});
+
+const User = mongoose.model("user", userSchema);
+
 //Routes
-app.get("/users",(req,res)=>{
+app.get("/users",async (req,res)=>{
+    const allDbUser = await User.find({});
     const html = `<ul>
-        ${users.map((user) =>`<li>${user.first_name}</li>`).join("")}
+        ${allDbUser.map((user) =>`<li>${user.firstName}- ${user.email}</li>`).join("")}
     </ul>`;
     res.send(html);
 })
 
 // Rest Api
-app.get("/api/users",(req,res)=>{
-    res.json(users);
+app.get("/api/users",async (req,res)=>{
+    const allDbUser = await User.find({});
+    return res.json(allDbUser);
 })
-app.get("/api/users/:id",(req,res)=>{
-    const id = Number(req.params.id);
-    const user = users.find((user) => user.id === id);
-    return res.json(user);
+app.get("/api/users/:id", async (req,res)=>{
+    const user = await User.findById(req.params.id);
+     return res.json(user);
 })
-app.post("/api/users",(req,res)=>{
+app.post("/api/users", async (req,res)=>{
     // TODO: Create new user
     const body = req.body;
-    const newUser = {...body,id: users.length+1};
-    users.push(newUser);
-    fs.writeFile("./MOCK_DATA.json", JSON.stringify(users), (err,data)=>{
-        if(err){
-            return res.status(500).json({ status: "Error", message: "Failed to save user data." });
-        }
-        else
-        return res.json({status:"Success",id: users.length})
-    })    
-})
-app.patch("/api/users/:id",(req,res)=>{
-    // TODO: Edit the user with id
-    const userId = parseInt(req.params.id); // Get user ID from URL
-    const updates = req.body; // Get update data from request body
-    // Find user by ID
-    let user = users.find((u) => u.id === userId);
-    if (!user) {
-        return res.status(404).json({ status: "Error", message: "User not found" });
+    if(!body || !body.first_name || !body.last_name || !body.email || !body.gender || !body.job_title){
+        res.status(400).json({message: "All fields are reuired."})
     }
-    // Update user properties dynamically
-    Object.assign(user, updates);
-
-    // Save updated data back to file
-    fs.writeFile("./MOCK_DATA.json", JSON.stringify(users, null, 2), (err) => {
-        if (err) {
-            return res.status(500).json({ status: "Error", message: "Failed to update user" });
-        }
-        res.json({ status: "Success", user });
+    const result = await User.create({
+        firstName: body.first_name,
+        lastName: body.last_name,
+        email: body.email,
+        gender: body.gender,
+        jobTitle: body.job_title,
     });
+    console.log("result", result);
+    
+    return res.status(201).json({msg: "Success"})
+        
 })
-app.delete("/api/users/:id",(req,res)=>{
-    // TODO: delete the user with id
-    const userId = parseInt(req.params.id);
-    // Check if user exists
-    const userIndex = users.findIndex((u) => u.id === userId);
-    if (userIndex === -1) {
-        return res.status(404).json({ status: "Error", message: "User not found" });
-    }
-    // Remove user from the list
-    users.splice(userIndex, 1);
-  // Save updated list back to file
-    fs.writeFile("./MOCK_DATA.json", JSON.stringify(users, null, 2), (err) => {
-        if (err) {
-            return res.status(500).json({ status: "Error", message: "Failed to delete user" });
-        }
-        res.json({ status: "Success", message: "User deleted" });
-    });
+app.patch("/api/users/:id",async (req,res)=>{
+    await User.findByIdAndUpdate(req.params.id,{lastName: "Changed"});
+    return res.json({status: "success"})
+    })
+app.delete("/api/users/:id", async (req,res)=>{
+    await User.findByIdAndDelete(req.params.id);
+    return res.json({status:"success"});
 })
 
 app.listen(PORT,()=> console.log(`Server started at ${PORT}`));
