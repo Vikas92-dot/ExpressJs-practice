@@ -1,0 +1,39 @@
+Assignment 1
+Topic - Express JS
+sub topic - Router, Http methods
+
+
+1. Design a server to respond to following routes
+	localhost:3000/ admin / home
+	localhost:3000/ admin / about
+    localhost:3000/ admin / contact
+
+	localhost:3000/ user / home
+    localhost:3000/ user / about
+    localhost:3000/ user / contact
+
+	define static files in the public folder and call them using view engine - ejs
+
+2. Design responses for 3 router defined as AdminRouter, StudentRouter, FacultyRouter as following
+
+data = 
+[
+ {id: 1, "sname":"vinod" , "age" : 20, "stream" :"cs" , "sem": "VI", "coding level" : "intermediatary"}, 
+ {id: 2, "sname":"Akshay" , "age" : 20, "stream" :"cs" , "sem": "VI", "coding level" : "Beginner"}
+ {id: 3, "sname":"Rithvik" , "age" : 20, "stream" :"IT" , "sem": "VI", "coding level" : "Expert"}
+] 
+
+a. AdminRouter 
+   localhost:3000/admin
+	(i) can accept request from all http methods - get , get/:id , post , put, patch, delete/:id
+	(ii) for all requests a middleware needs to be called which logs a message on terminal with current date , request method name along with url		
+
+b. FacultyRouter
+   localhost:3000/faculty
+	(i) can accept request from http methods - get , get/:id , post , put, patch 
+	(ii) for all requests a middleware needs to be called which logs a message on terminal with current date , request method name along with url
+	
+c. StudentRouter
+   localhost:3000/student
+	(i) can accept request from http methods - post
+	(ii) a middleware needs to be called which logs a message on terminal with current date , request method name along with url	
